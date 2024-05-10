@@ -1,24 +1,31 @@
 import { useState } from 'react';
-import { createLazyFileRoute } from '@tanstack/react-router';
+import { createLazyFileRoute, useNavigate } from '@tanstack/react-router';
 
 import CredentialsLogin, { LoginWithCredentialsProps } from '../components/credentialsAuth';
+import { useAuth } from '../hooks/auth';
 
 export const Route = createLazyFileRoute('/auth')({
   component: Auth,
 });
 
 function Auth() {
+	const navigate = useNavigate({ from: "/auth" })
+	const {auth: {isAuthenticated}} = useAuth()
   const [type, setType] = useState<LoginWithCredentialsProps['type']>('register');
 
+	if (isAuthenticated) {
+		navigate({ to: "/", replace: true,  })
+		return null
+	}
+	
   return (
     <div className='flex h-screen items-center justify-center bg-pageBg'>
-      <div className='relative flex w-full max-w-96 flex-col gap-4 rounded-lg bg-white px-6 pb-12 pt-[90px]'>
-        {/* <BrandLogo className='absolute -top-6 left-6' /> */}
-        <h2 className='absolute left-[132px] top-6 text-xl font-semibold'>
+      <div className='flex w-full max-w-96 flex-col gap-4 rounded-lg bg-white px-6 py-12'>
+        <h2 className='text-center text-xl font-semibold'>
           {type === 'login' ? 'Login to Continue' : 'Register to get Started'}
         </h2>
 
-        <CredentialsLogin type={type} />
+        <CredentialsLogin type={type}  />
         <p
           onClick={() =>
             setType((prev) => (prev === 'login' ? 'register' : 'login'))

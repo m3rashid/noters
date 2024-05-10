@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 	"noters/utils"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -74,44 +75,49 @@ func credentialsRegister(ctx *fiber.Ctx) error {
 	registerBody := struct {
 		Name     string `json:"name" validate:"required"`
 		Email    string `json:"email" validate:"required,email"`
-		Phone    string `json:"phone,omitempty" validate:""`
 		Password string `json:"password" validate:"required"`
 	}{}
 
 	err := ctx.BodyParser(&registerBody)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("register body parser error:", err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request 1"})
 	}
 
 	validate := validator.New()
 	err = validate.Struct(registerBody)
 	if err != nil {
+		fmt.Println("register body validate error:", err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request 2"})
 	}
 
 	password, err := hashPassword(registerBody.Password)
 	if err != nil {
+		fmt.Println("register body hash password error:", err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
 	db, err := utils.GetDb()
 	if err != nil {
+		fmt.Println("get db error:", err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
 	newUser := User{
-		Name:     registerBody.Name,
-		Email:    registerBody.Email,
-		Password: password,
+		Name:      registerBody.Name,
+		Email:     registerBody.Email,
+		Password:  password,
+		CreatedAt: time.Now().UTC(),
 	}
 
-	if err := db.Create(newUser).Error; err != nil {
+	if err := db.Create(&newUser).Error; err != nil {
+		fmt.Println("create error:", err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
 	token, err := generateJWT(newUser.ID, registerBody.Email)
 	if err != nil {
+		fmt.Println("generate jwt error:", err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 

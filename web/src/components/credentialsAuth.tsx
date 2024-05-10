@@ -7,6 +7,7 @@ import Loader from './lib/loader';
 import apiClient from '../api/client';
 import TextInput from './lib/textInput';
 import { useAuth } from '../hooks/auth';
+import { useNavigate } from '@tanstack/react-router';
 
 type LoginBody = { email: string; password: string };
 type RegisterBody = LoginBody & { name: string };
@@ -20,6 +21,7 @@ export type LoginWithCredentialsProps = {
 
 function CredentialsLogin(props: LoginWithCredentialsProps) {
   const { setAuth } = useAuth();
+	const navigate = useNavigate();
   const [errors, setErrors] = useState<Errors>({ email: '', password: '', name: '' });
   const { isPending: isLoginPending, mutate: handleLogin } = useMutation({
     mutationKey: ['login'],
@@ -39,6 +41,7 @@ function CredentialsLogin(props: LoginWithCredentialsProps) {
   function onSuccess(data: any) {
     localStorage.setItem('token', data.token);
     setAuth({ isAuthenticated: true, user: data.user });
+		navigate({to: "/"})
     if (props.onSuccess) props.onSuccess();
   }
 
@@ -77,7 +80,7 @@ function CredentialsLogin(props: LoginWithCredentialsProps) {
           name='name'
           type='name'
           label='Name'
-          placeholder='BizMate Hero'
+          placeholder='Noters Hero'
           required
           errorText={errors.name}
         />
@@ -87,7 +90,7 @@ function CredentialsLogin(props: LoginWithCredentialsProps) {
         name='email'
         type='email'
         label='Email'
-        placeholder='rashid@bizmate.com'
+        placeholder='rashid@noters.com'
         required
         descriptionText='We will never share your email.'
         errorText={errors.email}
