@@ -40,15 +40,15 @@ func CheckAuth(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-func CheckAuthMiddleware(c *fiber.Ctx) error {
-	clientToken := c.Get("Authorization")
+func CheckAuthMiddleware(ctx *fiber.Ctx) error {
+	clientToken := ctx.Get("Authorization")
 	if clientToken == "" {
-		return c.Status(fiber.StatusUnauthorized).SendString("No Authorization header provided")
+		return ctx.Status(fiber.StatusUnauthorized).SendString("No Authorization header provided")
 	}
 
 	claims, err := CheckAuth(clientToken)
 	if err != nil {
-		c.Status(fiber.StatusUnauthorized).SendString(err.Error())
+		ctx.Status(fiber.StatusUnauthorized).SendString(err.Error())
 	}
 
 	userIdU64, err := strconv.ParseUint(claims.UserID, 10, 32)
@@ -56,9 +56,9 @@ func CheckAuthMiddleware(c *fiber.Ctx) error {
 		return fmt.Errorf("error parsing user id: %v", err)
 	}
 
-	c.Locals("email", claims.Email)
-	c.Locals("userId", uint(userIdU64))
-	c.Locals("authorized", true)
+	ctx.Locals("email", claims.Email)
+	ctx.Locals("userId", uint(userIdU64))
+	ctx.Locals("authorized", true)
 
-	return c.Next()
+	return ctx.Next()
 }

@@ -46,18 +46,14 @@ func main() {
 	}))
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-			"message": "Welcome to Noters API",
-		})
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Welcome to Noters API"})
 	})
 
 	users.Setup(app)
 	notes.Setup(app)
 
 	if os.Getenv("SERVER_MODE") == "development" {
-		app.Use(logger.New(logger.Config{
-			Format: "${time} ${status} ${latency} ${method} ${path} ${body} ${query}\n",
-		}))
+		app.Use(logger.New())
 	}
 
 	db, err := utils.GetDb()

@@ -10,7 +10,12 @@ import (
 )
 
 func createNote(ctx *fiber.Ctx) error {
-	note := Note{}
+	userId := ctx.Locals("userId").(uint)
+	fmt.Println("User ID: ", userId)
+
+	note := Note{
+		UserID: userId,
+	}
 	if err := ctx.BodyParser(note); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
 	}
@@ -33,6 +38,9 @@ func createNote(ctx *fiber.Ctx) error {
 }
 
 func updateNote(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId").(uint)
+	fmt.Println("User ID: ", userId)
+
 	note := Note{}
 	if err := ctx.BodyParser(note); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
@@ -48,6 +56,15 @@ func updateNote(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
+	oldNote := Note{}
+	if err := db.Where("id = ?", note.ID).First(&oldNote).Error; err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Note not found"})
+	}
+
+	if oldNote.UserID != userId {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
 	if err := db.Save(&note).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
@@ -56,6 +73,9 @@ func updateNote(ctx *fiber.Ctx) error {
 }
 
 func deleteNote(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId").(uint)
+	fmt.Println("User ID: ", userId)
+
 	deleteBody := struct {
 		ID uint `json:"id" validate:"required"`
 	}{}
@@ -74,6 +94,15 @@ func deleteNote(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
+	oldNote := Note{}
+	if err := db.Where("id = ?", deleteBody.ID).First(&oldNote).Error; err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Note not found"})
+	}
+
+	if oldNote.UserID != userId {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
 	note := Note{}
 	if err := db.Where("id = ?", deleteBody.ID).First(&note).Error; err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Note not found"})
@@ -83,6 +112,9 @@ func deleteNote(ctx *fiber.Ctx) error {
 }
 
 func getNotes(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId").(uint)
+	fmt.Println("User ID: ", userId)
+
 	Limit, err := strconv.Atoi(ctx.Params("limit"))
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
@@ -104,7 +136,7 @@ func getNotes(ctx *fiber.Ctx) error {
 	}
 
 	notes := []Note{}
-	if err := db.Limit(limit).Offset(skip).Find(&notes).Error; err != nil {
+	if err := db.Where("userId = ?", userId).Order("id DESC").Limit(limit).Offset(skip).Find(&notes).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
