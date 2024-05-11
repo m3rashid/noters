@@ -24,7 +24,13 @@ function App() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	if (loading) return <Loader />
+	if (loading) {
+		return (
+			<div className="flex h-screen items-center justify-center">
+				<Loader />
+			</div>
+		)
+	}
 
 	return <RouterProvider router={router} />
 }

@@ -8,6 +8,7 @@ import apiClient from '../api/client'
 import TextInput from './lib/textInput'
 import TextAreaInput from './lib/textAreaInput'
 import SingleSelectInput from './lib/selectInput'
+import Loader from './lib/loader'
 
 export const statusOptions = [
 	{ label: 'To Do', value: 'todo', id: 'todo' },
@@ -68,7 +69,7 @@ function CreateNoteForm(props: CreateNoteFormProps) {
 						)}
 					/>
 
-					<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+					<div className="mt-14 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
 						<Button {...{ label: 'Cancel', variant: 'simple', size: 'small' }} />
 						<Button
 							{...{
@@ -77,6 +78,7 @@ function CreateNoteForm(props: CreateNoteFormProps) {
 								disabled: isPending,
 								label: isEdit ? 'Update Note' : 'Create Note',
 								variant: isPending ? 'disabled' : 'primary',
+								rightIcon: isPending ? () => <Loader className="h-4 w-4" /> : undefined,
 							}}
 						/>
 					</div>

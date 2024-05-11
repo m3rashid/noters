@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import LockClosedIcon from '@heroicons/react/20/solid/LockClosedIcon'
@@ -11,7 +11,6 @@ import { useAuth } from '../hooks/auth'
 
 type LoginBody = { email: string; password: string }
 type RegisterBody = LoginBody & { name: string }
-type Errors = RegisterBody
 
 export type LoginWithCredentialsProps = {
 	type: 'login' | 'register'
@@ -22,7 +21,6 @@ export type LoginWithCredentialsProps = {
 function CredentialsLogin(props: LoginWithCredentialsProps) {
 	const { setAuth } = useAuth()
 	const navigate = useNavigate()
-	const [errors, setErrors] = useState<Errors>({ email: '', password: '', name: '' })
 	const { isPending: isLoginPending, mutate: handleLogin } = useMutation({
 		mutationKey: ['login'],
 		mutationFn: async (body: LoginBody) =>
@@ -71,14 +69,7 @@ function CredentialsLogin(props: LoginWithCredentialsProps) {
 	return (
 		<form className="flex w-full flex-col gap-4" onSubmit={handleSubmit}>
 			{props.type === 'register' ? (
-				<TextInput
-					name="name"
-					type="name"
-					label="Name"
-					placeholder="Noters Hero"
-					required
-					errorText={errors.name}
-				/>
+				<TextInput name="name" type="name" label="Name" placeholder="Noters Hero" required />
 			) : null}
 
 			<TextInput
@@ -88,24 +79,18 @@ function CredentialsLogin(props: LoginWithCredentialsProps) {
 				placeholder="rashid@noters.com"
 				required
 				descriptionText="We will never share your email."
-				errorText={errors.email}
 			/>
 
-			<TextInput
-				placeholder="Shhh..."
-				required
-				name="password"
-				type="password"
-				label="Password"
-				errorText={errors.password}
-			/>
+			<TextInput placeholder="Shhh..." required name="password" type="password" label="Password" />
 
 			<Button
 				type="submit"
 				className="mt-2"
 				leftIcon={LockClosedIcon}
 				label={props.type === 'register' ? 'Register' : 'Login'}
-				{...(isLoginPending || isRegisterPending ? { rightIcon: Loader } : {})}
+				{...(isLoginPending || isRegisterPending
+					? { rightIcon: () => <Loader className="h-4 w-4" /> }
+					: {})}
 			/>
 		</form>
 	)

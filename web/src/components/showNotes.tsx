@@ -22,7 +22,9 @@ function ShowNotes() {
 	return (
 		<ResponsiveMasonry columnsCountBreakPoints={{ 300: 1, 650: 2 }}>
 			{isLoading ? (
-				<Loader />
+				<div className="flex h-[calc(100vh-248px)] items-center justify-center">
+					<Loader />
+				</div>
 			) : (
 				<Masonry gutter="1rem" className="mt-4">
 					{notes.map((note: Note) => (
