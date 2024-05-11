@@ -1,26 +1,32 @@
-import { useEffect } from 'react';
-import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { useEffect } from 'react'
+import { RouterProvider, createRouter } from '@tanstack/react-router'
 
-import { useAuth } from './hooks/auth';
-import { routeTree } from './routeTree.gen';
+import { useAuth } from './hooks/auth'
+import { routeTree } from './routeTree.gen'
+import Loader from './components/lib/loader'
 
-const router = createRouter({ routeTree });
+const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router;
-  }
+	interface Register {
+		router: typeof router
+	}
 }
 
 function App() {
-  const { checkAuth } = useAuth();
+	const {
+		checkAuth,
+		auth: { loading },
+	} = useAuth()
 
-  useEffect(() => {
-    checkAuth().catch(console.log);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+	useEffect(() => {
+		checkAuth().catch(console.log)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
-  return <RouterProvider router={router} />;
+	if (loading) return <Loader />
+
+	return <RouterProvider router={router} />
 }
 
-export default App;
+export default App

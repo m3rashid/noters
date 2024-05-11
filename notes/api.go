@@ -3,7 +3,6 @@ package notes
 import (
 	"fmt"
 	"noters/utils"
-	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -11,13 +10,16 @@ import (
 
 func createNote(ctx *fiber.Ctx) error {
 	userId := ctx.Locals("userId").(uint)
-	fmt.Println("User ID: ", userId)
-
 	note := Note{
 		UserID: userId,
 	}
-	if err := ctx.BodyParser(note); err != nil {
+	if err := ctx.BodyParser(&note); err != nil {
+		fmt.Println(err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
+	}
+
+	if note.Status == "" || (note.Status != "todo" && note.Status != "in_progress" && note.Status != "done") {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request, Status must be todo, in_progress or done"})
 	}
 
 	validate := validator.New()
@@ -39,7 +41,6 @@ func createNote(ctx *fiber.Ctx) error {
 
 func updateNote(ctx *fiber.Ctx) error {
 	userId := ctx.Locals("userId").(uint)
-	fmt.Println("User ID: ", userId)
 
 	note := Note{}
 	if err := ctx.BodyParser(note); err != nil {
@@ -74,7 +75,6 @@ func updateNote(ctx *fiber.Ctx) error {
 
 func deleteNote(ctx *fiber.Ctx) error {
 	userId := ctx.Locals("userId").(uint)
-	fmt.Println("User ID: ", userId)
 
 	deleteBody := struct {
 		ID uint `json:"id" validate:"required"`
@@ -113,22 +113,6 @@ func deleteNote(ctx *fiber.Ctx) error {
 
 func getNotes(ctx *fiber.Ctx) error {
 	userId := ctx.Locals("userId").(uint)
-	fmt.Println("User ID: ", userId)
-
-	Limit, err := strconv.Atoi(ctx.Params("limit"))
-	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
-	}
-
-	Skip, err := strconv.Atoi(ctx.Params("skip"))
-	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
-	}
-
-	fmt.Println("Limit: ", Limit, " and Skip: ", Skip)
-
-	skip := max(Skip, 0)
-	limit := min(Limit, 30)
 
 	db, err := utils.GetDb()
 	if err != nil {
@@ -136,7 +120,7 @@ func getNotes(ctx *fiber.Ctx) error {
 	}
 
 	notes := []Note{}
-	if err := db.Where("userId = ?", userId).Order("id DESC").Limit(limit).Offset(skip).Find(&notes).Error; err != nil {
+	if err := db.Where("\"userId\" = ?", userId).Order("id DESC").Find(&notes).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 
