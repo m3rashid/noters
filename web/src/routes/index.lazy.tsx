@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, createLazyFileRoute } from '@tanstack/react-router'
+import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
 
 import apiClient from '../api/client'
 import { NotesProvider } from '../hooks/note'
@@ -14,6 +14,7 @@ export const Route = createLazyFileRoute('/')({
 
 function Index() {
 	const { auth } = useAuth()
+	const navigate = useNavigate({ from: '/' })
 
 	const { refetch } = useQuery({
 		queryKey: ['getNotes'],
@@ -41,9 +42,12 @@ function Index() {
 					) : (
 						<div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b border-gray-200 bg-white px-3 py-32 shadow-md">
 							<h2 className="text-center text-lg font-bold">You are not logged in</h2>
-							<Link to="/auth" className="text-center text-blue-500">
+							<div
+								className="cursor-pointer text-center text-blue-500"
+								onClick={() => navigate({ to: '/auth', search: { type: 'login' } })}
+							>
 								Login to view your notes
-							</Link>
+							</div>
 						</div>
 					)}
 				</div>

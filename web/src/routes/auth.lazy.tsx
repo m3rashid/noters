@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
+import { createLazyFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 
 import { useAuth } from '../hooks/auth'
 import CredentialsLogin, { LoginWithCredentialsProps } from '../components/credentialsAuth'
@@ -10,10 +10,14 @@ export const Route = createLazyFileRoute('/auth')({
 
 function Auth() {
 	const navigate = useNavigate({ from: '/auth' })
+	const router = useRouterState()
+
 	const {
 		auth: { isAuthenticated },
 	} = useAuth()
-	const [type, setType] = useState<LoginWithCredentialsProps['type']>('register')
+	const [type, setType] = useState<LoginWithCredentialsProps['type']>(
+		(router.location.search as any).type || 'register',
+	)
 
 	useEffect(() => {
 		if (isAuthenticated) {
