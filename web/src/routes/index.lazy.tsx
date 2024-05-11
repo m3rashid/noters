@@ -33,15 +33,13 @@ function Index() {
 					<h1 className="text-2xl font-bold">Notes</h1>
 					<CreateNote onSuccess={refetch} />
 				</div>
-				{isLoading ? (
-					<Loader />
-				) : (
-					<div className="my-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						{data.notes.map((note: any) => (
-							<NoteCard key={note.id} {...note} />
-						))}
-					</div>
-				)}
+				<div className="my-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{isLoading ? (
+						<Loader />
+					) : (
+						data.notes.map((note: any) => <NoteCard key={note.id} {...note} />)
+					)}
+				</div>
 			</div>
 		</div>
 	)

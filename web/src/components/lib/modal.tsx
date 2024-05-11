@@ -1,22 +1,22 @@
-import { Fragment, PropsWithChildren, useRef, useState } from 'react'
+import { Dispatch, Fragment, PropsWithChildren, SetStateAction, useRef } from 'react'
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react'
 
 import Button, { ButtonProps } from './button'
 
 export type ModalProps = PropsWithChildren & {
+	open: boolean
+	setOpen: Dispatch<SetStateAction<boolean>>
 	title?: string
 	okButton?: ButtonProps
 	closeButton?: ButtonProps
 }
 
 function Modal(props: ModalProps) {
-	const [open, setOpen] = useState(true)
-
 	const cancelButtonRef = useRef(null)
 
 	return (
-		<Transition show={open} as={Fragment}>
-			<Dialog className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+		<Transition show={props.open} as={Fragment}>
+			<Dialog onClose={props.setOpen} className="relative z-10" initialFocus={cancelButtonRef}>
 				<TransitionChild
 					as={Fragment}
 					enter="ease-out duration-300"
@@ -41,11 +41,11 @@ function Modal(props: ModalProps) {
 							leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 						>
 							<DialogPanel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-								<div className="mt-3 text-center sm:mt-5">
+								<div className="text-center">
 									{props.title ? (
 										<DialogTitle
 											as="h3"
-											className="text-base font-semibold leading-6 text-gray-900"
+											className="mb-4 text-base font-semibold leading-6 text-gray-900"
 										>
 											{props.title}
 										</DialogTitle>
@@ -60,7 +60,7 @@ function Modal(props: ModalProps) {
 												{...props.okButton}
 												onClick={(e) => {
 													if (props.okButton?.onClick) props.okButton.onClick(e)
-													setOpen(false)
+													props.setOpen(false)
 												}}
 											/>
 										) : null}
@@ -71,7 +71,7 @@ function Modal(props: ModalProps) {
 												{...props.closeButton}
 												onClick={(e) => {
 													if (props.closeButton?.onClick) props.closeButton.onClick(e)
-													setOpen(false)
+													props.setOpen(false)
 												}}
 											/>
 										) : null}

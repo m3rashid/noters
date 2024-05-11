@@ -6,7 +6,7 @@ import apiClient from '../api/client'
 import TextInput from './lib/textInput'
 import TextAreaInput from './lib/textAreaInput'
 import SingleSelectInput from './lib/selectInput'
-import { XMarkIcon } from '@heroicons/react/16/solid'
+import Modal from './lib/modal'
 
 const statusOptions = [
 	{ label: 'To DO', value: 'todo', id: 'todo' },
@@ -32,6 +32,7 @@ function CreateNote(props: { onSuccess: () => void }) {
 
 	const handleCreateNote = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
+		console.log('handleCreateNote')
 		const formData = Object.fromEntries(new FormData(e.currentTarget))
 		createNote(formData, {
 			onSuccess: () => {
@@ -42,48 +43,41 @@ function CreateNote(props: { onSuccess: () => void }) {
 	}
 
 	return (
-		<>
+		<div>
 			<Button size="small" onClick={() => setOpen(true)}>
 				Create Note
 			</Button>
-			{open ? (
-				<div className="absolute left-0 top-0 z-30 flex h-screen w-screen items-center justify-center bg-black bg-opacity-50">
-					<div className="relative z-50 rounded-md bg-white px-4 py-8">
-						<Button
-							leftIcon={XMarkIcon}
-							onClick={() => setOpen(false)}
-							variant="simple"
-							className="absolute right-2 top-2 rounded-full border-none px-2 shadow-sm"
+			<form onSubmit={handleCreateNote}>
+				<Modal
+					title="Create Note"
+					open={open}
+					setOpen={setOpen}
+					okButton={{
+						size: 'small',
+						type: 'submit',
+						disabled: isPending,
+						label: 'Create Note',
+						variant: isPending ? 'disabled' : 'primary',
+					}}
+					closeButton={{ label: 'Cancel', variant: 'simple', size: 'small' }}
+				>
+					<div className="flex min-w-80 flex-col gap-4">
+						<TextInput name="title" placeholder="Title" required />
+						<TextAreaInput name="body" rows={6} placeholder="Write details to your note" />
+						<SingleSelectInput
+							name="status"
+							options={statusOptions}
+							default={statusOptions[0].value}
+							render={({ option }) => (
+								<span>
+									{statusOptions.find((op) => op.value === option)?.label || statusOptions[0].label}
+								</span>
+							)}
 						/>
-
-						<h2 className="mb-6 text-left text-xl font-bold">Create Note</h2>
-
-						<form onSubmit={handleCreateNote} className="z-40 flex min-w-80 flex-col gap-4">
-							<TextInput name="title" label="Title" required />
-							<TextAreaInput name="body" label="Body" rows={6} />
-							<SingleSelectInput
-								name="status"
-								options={statusOptions}
-								default={statusOptions[0].value}
-								render={({ option }) => (
-									<span>
-										{statusOptions.find((op) => op.value === option)?.label ||
-											statusOptions[0].label}
-									</span>
-								)}
-							/>
-							<Button
-								disabled={isPending}
-								type="submit"
-								variant={isPending ? 'disabled' : 'primary'}
-							>
-								Create Note
-							</Button>
-						</form>
 					</div>
-				</div>
-			) : null}
-		</>
+				</Modal>
+			</form>
+		</div>
 	)
 }
 
