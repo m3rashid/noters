@@ -3,6 +3,7 @@
 ---
 
 **Tech Stack**
+
 Backend: Golang, Fiber, Docker, Postgres, Redis
 
 Frontend: Typescript, React, Tailwindcss
