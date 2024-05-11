@@ -14,9 +14,6 @@ function Header() {
 				<Link to="/" className="[&.active]:font-bold">
 					Home
 				</Link>
-				<Link to="/about" className="[&.active]:font-bold">
-					About
-				</Link>
 			</div>
 
 			<div className="flex items-center gap-4">

@@ -43,7 +43,9 @@ function CreateNote(props: { onSuccess: () => void }) {
 
 	return (
 		<>
-			<Button onClick={() => setOpen(true)}>Create Note</Button>
+			<Button size="small" onClick={() => setOpen(true)}>
+				Create Note
+			</Button>
 			{open ? (
 				<div className="absolute left-0 top-0 z-30 flex h-screen w-screen items-center justify-center bg-black bg-opacity-50">
 					<div className="relative z-50 rounded-md bg-white px-4 py-8">
