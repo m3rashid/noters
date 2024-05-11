@@ -1,22 +1,16 @@
-import { Dispatch, Fragment, PropsWithChildren, SetStateAction, useRef } from 'react'
+import { Dispatch, Fragment, PropsWithChildren, SetStateAction } from 'react'
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react'
-
-import Button, { ButtonProps } from './button'
 
 export type ModalProps = PropsWithChildren & {
 	open: boolean
-	setOpen: Dispatch<SetStateAction<boolean>>
 	title?: string
-	okButton?: ButtonProps
-	closeButton?: ButtonProps
+	setOpen: Dispatch<SetStateAction<boolean>>
 }
 
 function Modal(props: ModalProps) {
-	const cancelButtonRef = useRef(null)
-
 	return (
 		<Transition show={props.open} as={Fragment}>
-			<Dialog onClose={props.setOpen} className="relative z-10" initialFocus={cancelButtonRef}>
+			<Dialog onClose={props.setOpen} className="relative z-10">
 				<TransitionChild
 					as={Fragment}
 					enter="ease-out duration-300"
@@ -52,31 +46,6 @@ function Modal(props: ModalProps) {
 									) : null}
 									<div className="mt-2">{props.children}</div>
 								</div>
-
-								{props.okButton || props.closeButton ? (
-									<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-										{props.okButton ? (
-											<Button
-												{...props.okButton}
-												onClick={(e) => {
-													if (props.okButton?.onClick) props.okButton.onClick(e)
-													props.setOpen(false)
-												}}
-											/>
-										) : null}
-
-										{props.closeButton ? (
-											<Button
-												ref={cancelButtonRef}
-												{...props.closeButton}
-												onClick={(e) => {
-													if (props.closeButton?.onClick) props.closeButton.onClick(e)
-													props.setOpen(false)
-												}}
-											/>
-										) : null}
-									</div>
-								) : null}
 							</DialogPanel>
 						</TransitionChild>
 					</div>

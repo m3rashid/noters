@@ -22,7 +22,7 @@ function Auth() {
 	}, [])
 
 	return (
-		<div className="flex h-screen items-center justify-center bg-pageBg">
+		<div className="flex h-[calc(100vh-48px)] items-center justify-center bg-pageBg">
 			<div className="flex w-full max-w-96 flex-col gap-4 rounded-lg bg-white px-6 py-12">
 				<h2 className="text-center text-xl font-semibold">
 					{type === 'login' ? 'Login to Continue' : 'Register to get Started'}

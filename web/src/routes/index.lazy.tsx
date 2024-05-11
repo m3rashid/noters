@@ -1,46 +1,53 @@
 import { useQuery } from '@tanstack/react-query'
-import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createLazyFileRoute } from '@tanstack/react-router'
 
 import apiClient from '../api/client'
-import { useAuth } from '../hooks/auth'
-import Loader from '../components/lib/loader'
-import NoteCard from '../components/noteCard'
+import { NotesProvider } from '../hooks/note'
+import ShowNotes from '../components/showNotes'
 import CreateNote from '../components/createNote'
+import ShowFilter from '../components/showFilter'
+import { useAuth } from '../hooks/auth'
 
 export const Route = createLazyFileRoute('/')({
 	component: Index,
 })
 
 function Index() {
-	const navigate = useNavigate()
-	const {
-		auth: { isAuthenticated },
-	} = useAuth()
-	const { data, isLoading, refetch } = useQuery({
+	const { auth } = useAuth()
+
+	const { refetch } = useQuery({
 		queryKey: ['getNotes'],
 		queryFn: () => apiClient('/notes', { method: 'GET' }),
+		retry: auth.isAuthenticated ? 3 : false,
 	})
 
-	if (!isAuthenticated) {
-		navigate({ to: '/auth' })
-		return null
-	}
-
 	return (
-		<div className="flex h-[calc(100vh-48px)] justify-center overflow-y-auto bg-slate-100 bg-[url(/paper.svg)] p-2">
-			<div className="w-full max-w-[800px]">
-				<div className="flex items-center justify-between">
-					<h1 className="text-2xl font-bold">Notes</h1>
-					<CreateNote onSuccess={refetch} />
-				</div>
-				<div className="my-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{isLoading ? (
-						<Loader />
+		<NotesProvider>
+			<div className="flex h-[calc(100vh-48px)] justify-center overflow-y-auto bg-slate-200 bg-[url(/paper.svg)] p-2">
+				<div className="mt-4 w-full max-w-[800px]">
+					{auth.isAuthenticated ? (
+						<>
+							<div className="flex items-center justify-between">
+								<h1 className="text-2xl font-bold">Notes</h1>
+
+								<div className="flex gap-2">
+									<CreateNote onSuccess={refetch} />
+									<ShowFilter />
+								</div>
+							</div>
+
+							<ShowNotes />
+						</>
 					) : (
-						data.notes.map((note: any) => <NoteCard key={note.id} {...note} />)
+						<div className="flex flex-col items-center justify-center gap-2 rounded-lg border-b border-gray-200 bg-white px-3 py-32 shadow-md">
+							<h2 className="text-center text-lg font-bold">You are not logged in</h2>
+							<Link to="/auth" className="text-center text-blue-500">
+								Login to view your notes
+							</Link>
+						</div>
 					)}
 				</div>
 			</div>
-		</div>
+		</NotesProvider>
 	)
 }

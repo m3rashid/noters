@@ -9,5 +9,6 @@ export type Note = {
 	id: number
 	title: string
 	body: string
+	status: 'todo' | 'in_progress' | 'done'
 	createdAt: string
 }

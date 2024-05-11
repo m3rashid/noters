@@ -1,15 +1,15 @@
-import { useMutation } from '@tanstack/react-query'
 import { FormEvent, useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
+import Modal from './lib/modal'
 import Button from './lib/button'
 import apiClient from '../api/client'
 import TextInput from './lib/textInput'
 import TextAreaInput from './lib/textAreaInput'
 import SingleSelectInput from './lib/selectInput'
-import Modal from './lib/modal'
 
-const statusOptions = [
-	{ label: 'To DO', value: 'todo', id: 'todo' },
+export const statusOptions = [
+	{ label: 'To Do', value: 'todo', id: 'todo' },
 	{ label: 'In Progress', value: 'in_progress', id: 'in_progress' },
 	{ label: 'Done', value: 'done', id: 'done' },
 ]
@@ -17,11 +17,7 @@ const statusOptions = [
 function CreateNote(props: { onSuccess: () => void }) {
 	const [open, setOpen] = useState(false)
 
-	const {
-		isSuccess,
-		isPending,
-		mutate: createNote,
-	} = useMutation({
+	const { isPending, mutate } = useMutation({
 		mutationKey: ['createNote', 'getNotes'],
 		mutationFn: (data: any) =>
 			apiClient('/notes/create', {
@@ -32,9 +28,9 @@ function CreateNote(props: { onSuccess: () => void }) {
 
 	const handleCreateNote = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		console.log('handleCreateNote')
-		const formData = Object.fromEntries(new FormData(e.currentTarget))
-		createNote(formData, {
+		const formData = Object.fromEntries(new FormData(e.target as HTMLFormElement))
+		if (!formData.title || !formData.status) return
+		mutate(formData, {
 			onSuccess: () => {
 				setOpen(false)
 				props.onSuccess()
@@ -47,20 +43,8 @@ function CreateNote(props: { onSuccess: () => void }) {
 			<Button size="small" onClick={() => setOpen(true)}>
 				Create Note
 			</Button>
-			<form onSubmit={handleCreateNote}>
-				<Modal
-					title="Create Note"
-					open={open}
-					setOpen={setOpen}
-					okButton={{
-						size: 'small',
-						type: 'submit',
-						disabled: isPending,
-						label: 'Create Note',
-						variant: isPending ? 'disabled' : 'primary',
-					}}
-					closeButton={{ label: 'Cancel', variant: 'simple', size: 'small' }}
-				>
+			<Modal open={open} title="Create Note" setOpen={setOpen}>
+				<form onSubmit={handleCreateNote}>
 					<div className="flex min-w-80 flex-col gap-4">
 						<TextInput name="title" placeholder="Title" required />
 						<TextAreaInput name="body" rows={6} placeholder="Write details to your note" />
@@ -74,9 +58,22 @@ function CreateNote(props: { onSuccess: () => void }) {
 								</span>
 							)}
 						/>
+
+						<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+							<Button {...{ label: 'Cancel', variant: 'simple', size: 'small' }} />
+							<Button
+								{...{
+									size: 'small',
+									type: 'submit',
+									disabled: isPending,
+									label: 'Create Note',
+									variant: isPending ? 'disabled' : 'primary',
+								}}
+							/>
+						</div>
 					</div>
-				</Modal>
-			</form>
+				</form>
+			</Modal>
 		</div>
 	)
 }

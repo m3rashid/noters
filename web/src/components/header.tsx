@@ -1,23 +1,30 @@
-import { Link } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 
 import { useAuth } from '../hooks/auth'
 
 function Header() {
-	const {
-		auth: { isAuthenticated, user },
-	} = useAuth()
+	const navigate = useNavigate()
+	const { auth } = useAuth()
 
-	if (!isAuthenticated) return null
+	const handleClick = () => {
+		if (auth.isAuthenticated) {
+			window.localStorage.removeItem('token')
+			window.location.reload()
+		} else {
+			navigate({ to: '/auth' })
+		}
+	}
+
 	return (
 		<div className="flex h-12 items-center justify-between gap-2 border-b border-gray-200 p-2">
 			<div className="flex select-none items-center gap-4">
-				<Link to="/" className="[&.active]:font-bold">
-					Home
-				</Link>
+				<h2 className="text-lg font-bold">Noters</h2>
 			</div>
 
 			<div className="flex items-center gap-4">
-				<span className="select-none text-sm font-semibold">{user?.name}</span>
+				<span className="cursor-pointer select-none text-sm font-semibold" onClick={handleClick}>
+					{auth.isAuthenticated ? 'Logout' : 'Login'}
+				</span>
 			</div>
 		</div>
 	)
