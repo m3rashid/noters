@@ -22,11 +22,9 @@ export function ShowBody(props: { body?: string; length?: number }) {
 	const [more, setMore] = useState(false)
 	const body = props.body || ''
 	const length = props.length || 200
-
 	const isMore = body.length > length
 
 	if (!isMore) return <p>{body}</p>
-
 	return (
 		<p>
 			{more ? body : body.slice(0, length)}
