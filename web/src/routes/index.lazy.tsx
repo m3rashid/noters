@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { createLazyFileRoute, useNavigate } from '@tanstack/react-router'
 
 import apiClient from '../api/client'
+import { useAuth } from '../hooks/auth'
 import { NotesProvider } from '../hooks/note'
 import ShowNotes from '../components/showNotes'
 import CreateNote from '../components/createNote'
 import ShowFilter from '../components/showFilter'
-import { useAuth } from '../hooks/auth'
 
 export const Route = createLazyFileRoute('/')({
 	component: Index,
@@ -26,6 +26,11 @@ function Index() {
 		<NotesProvider>
 			<div className="flex h-[calc(100vh-48px)] justify-center overflow-y-auto bg-slate-200 bg-[url(/paper.svg)] p-2">
 				<div className="mt-4 w-full max-w-[800px]">
+					<div className="mb-5 flex flex-col items-center justify-center gap-1 rounded-lg border-b border-gray-200 bg-white p-2 shadow-md">
+						<h2 className="text-center text-lg font-bold">Welcome to Noters</h2>
+						<p className="text-sm font-semibold text-gray-400">Your friendly notes app</p>
+					</div>
+
 					{auth.isAuthenticated ? (
 						<>
 							<div className="flex items-center justify-between">

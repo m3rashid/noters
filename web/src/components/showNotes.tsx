@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 
 import { Note } from '../types'
 import Loader from './lib/loader'
+import NoteCard from './noteCard'
 import apiClient from '../api/client'
 import { useNotes } from '../hooks/note'
 
 function ShowNotes() {
 	const { status } = useNotes()
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['getNotes'],
 		queryFn: () => apiClient('/notes', { method: 'GET' }),
 	})
@@ -18,24 +20,17 @@ function ShowNotes() {
 	)
 
 	return (
-		<>
-			<div className="my-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-				{isLoading ? (
-					<Loader />
-				) : (
-					notes.map((note: Note) => (
-						<div
-							key={note.id}
-							className="rounded-lg border-b border-gray-200 bg-white px-3 py-2 shadow-md"
-						>
-							<h2 className="text-lg font-bold">{note.title}</h2>
-							<p>{note.body}</p>
-							<p className="mt-6 text-sm text-gray-700">{new Date(note.createdAt).toUTCString()}</p>
-						</div>
-					))
-				)}
-			</div>
-		</>
+		<ResponsiveMasonry columnsCountBreakPoints={{ 300: 1, 650: 2 }}>
+			{isLoading ? (
+				<Loader />
+			) : (
+				<Masonry gutter="1rem" className="mt-4">
+					{notes.map((note: Note) => (
+						<NoteCard key={note.id} {...{ note, refetch }} />
+					))}
+				</Masonry>
+			)}
+		</ResponsiveMasonry>
 	)
 }
 

@@ -43,7 +43,8 @@ func updateNote(ctx *fiber.Ctx) error {
 	userId := ctx.Locals("userId").(uint)
 
 	note := Note{}
-	if err := ctx.BodyParser(note); err != nil {
+	if err := ctx.BodyParser(&note); err != nil {
+		fmt.Println(err.Error())
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Bad Request"})
 	}
 
@@ -108,6 +109,11 @@ func deleteNote(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Note not found"})
 	}
 
+	note.Deleted = true
+	if err := db.Save(&note).Error; err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Note deleted"})
 }
 
@@ -120,7 +126,7 @@ func getNotes(ctx *fiber.Ctx) error {
 	}
 
 	notes := []Note{}
-	if err := db.Where("\"userId\" = ?", userId).Order("id DESC").Find(&notes).Error; err != nil {
+	if err := db.Where("\"userId\" = ? and deleted = false", userId).Order("id DESC").Find(&notes).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Internal Server Error"})
 	}
 

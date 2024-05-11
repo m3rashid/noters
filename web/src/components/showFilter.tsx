@@ -1,5 +1,5 @@
 import { useNotes } from '../hooks/note'
-import { statusOptions } from './createNote'
+import { statusOptions } from './createNoteForm'
 import SingleSelectInput from './lib/selectInput'
 
 const options = [...statusOptions, { label: 'All', value: 'all', id: 'all' }]
